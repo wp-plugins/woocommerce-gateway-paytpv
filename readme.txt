@@ -13,13 +13,13 @@ Pasarela de pago PayTpv para WooCommerce. Permite pago por tarjeta de crédito
 
 This is a payment gateway for WooCommerce to accept credit card payments using merchant accounts from https://paytpv.com
 
-Es un módulo de pago para WooCommerce que permite el pago de los pedidos mediante tarjeta de crédito usando el servicio de tpv virtual de http://paytpv.com
+Es un módulo de pago para WooCommerce que permite el pago de los pedidos mediante tarjeta de crédito usando el servicio de tpv virtual de https://paytpv.com
 
 == Installation ==
 
 1. Upload `woocommerce-gateway-paytpv` directory to the `/wp-content/plugins/` directory
-2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Go to Woocommerce -> Setting -> Payment Gateways -> Paytpv link and configure the data from your https://paytpv.com account.
+1. Activate the plugin through the 'Plugins' menu in WordPress
+1. Go to WooCommerce -> Setting -> Payment Gateways -> Paytpv link and configure the data from your https://paytpv.com account.
 
 == Frequently Asked Questions ==
 
