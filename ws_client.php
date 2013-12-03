@@ -9,6 +9,16 @@ class WS_Client {
 	var $client = null;
 	var $config = null;
 
+	private function write_log($log){
+      if ( true === WP_DEBUG ) {
+          if ( is_array( $log ) || is_object( $log ) ) {
+              error_log( print_r( $log, true ));
+          } else {
+              error_log( $log);
+          }
+      }
+	}
+
 	public function __construct( array $config = array( ), $proxyhost = '', $proxyport = '', $proxyusername = '', $proxypassword = '' ) {
 		$useCURL = isset( $_POST[ 'usecurl' ] ) ? $_POST[ 'usecurl' ] : '0';
 		$this->config = $config;
@@ -16,20 +26,23 @@ class WS_Client {
 						$proxyhost, $proxyport, $proxyusername, $proxypassword );
 		$err = $this->client->getError();
 		if ( $err ) {
-			echo '<h2>Constructor error</h2><pre>' . $err . '</pre>';
-			echo '<h2>Debug</h2><pre>' . htmlspecialchars( $client->getDebug(), ENT_QUOTES ) . '</pre>';
+			$this->write_log($err);
+			$this->write_log('Debug: '.$client->getDebug());
 			exit();
 		}
 		$this->client->setUseCurl( $useCURL );
 	}
 
-	function execute_purchase( $order, $amount ) {
+	function execute_purchase( $order, $amount,$ref='' ) {
 		$DS_MERCHANT_MERCHANTCODE = $this->config[ 'clientcode' ];
 		$DS_MERCHANT_TERMINAL = $this->config[ 'term' ];
 		$DS_IDUSER = get_post_meta( ( int ) $order->id, 'IdUser', true );
 		$DS_TOKEN_USER = get_post_meta( ( int ) $order->id, 'TokenUser', true );
 		$DS_MERCHANT_AMOUNT = $amount * 100;
-		$DS_MERCHANT_ORDER = time();
+		if($ref=='')
+			$DS_MERCHANT_ORDER = time();
+		else
+			$DS_MERCHANT_ORDER = str_pad( $ref, 8, "0", STR_PAD_LEFT ) . round(rand(0,99));
 		$DS_MERCHANT_CURRENCY = get_woocommerce_currency();
 		$DS_MERCHANT_MERCHANTSIGNATURE = sha1( $DS_MERCHANT_MERCHANTCODE . $DS_IDUSER . $DS_TOKEN_USER . $DS_MERCHANT_TERMINAL . $DS_MERCHANT_AMOUNT . $DS_MERCHANT_ORDER . $this->config[ 'pass' ] );
 		$DS_ORIGINAL_IP = get_post_meta( ( int ) $order->id, '_customer_ip_address', true );
@@ -46,7 +59,10 @@ class WS_Client {
 			'DS_MERCHANT_PRODUCTDESCRIPTION' => '',
 			'DS_MERCHANT_OWNER' => ''
 		);
-		return $this->client->call( 'execute_purchase', $p, '', '', false, true );
+		$this->write_log("Petición execute_purchase:\n".print_r($p,true));
+		$res = $this->client->call( 'execute_purchase', $p, '', '', false, true );
+		$this->write_log("Respuesta execute_purchase:\n".print_r($res,true));
+		return $res;
 	}
 
 	function info_user( $idUser, $tokeUser, $ip ) {
@@ -64,7 +80,10 @@ class WS_Client {
 			'DS_MERCHANT_MERCHANTSIGNATURE' => $DS_MERCHANT_MERCHANTSIGNATURE,
 			'DS_ORIGINAL_IP' => $DS_ORIGINAL_IP
 		);
-		return $this->client->call( 'info_user', $p, '', '', false, true );
+		$this->write_log("Petición info_user:\n".print_r($p,true));
+		$res = $this->client->call( 'info_user', $p, '', '', false, true );
+		$this->write_log("Respuesta info_user:\n".print_r($p,true));
+		return $res;
 	}
 
 }
@@ -146,5 +165,3 @@ class CreditCard {
 	}
 
 }
-
-?>
